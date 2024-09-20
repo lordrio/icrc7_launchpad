@@ -341,6 +341,7 @@ pub struct MintArg {
     pub token_name: Option<String>,
     pub token_description: Option<String>,
     pub token_logo: Option<String>,
+    pub extra_data: Option<Icrc7TokenMetadata>,
 }
 
 pub type MintResult = Result<u128, MintError>;

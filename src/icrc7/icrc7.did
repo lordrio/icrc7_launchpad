@@ -129,6 +129,7 @@ type MintArg = record {
   token_description : opt text;
   token_logo : opt text;
   token_name : opt text;
+  extra_data : opt vec record { text; Value };
 };
 type MintError = variant {
   GenericError : record { message : text; error_code : nat };

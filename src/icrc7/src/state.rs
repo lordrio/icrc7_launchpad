@@ -48,6 +48,7 @@ pub struct Icrc7Token {
     pub token_description: Option<String>,
     pub token_logo: Option<String>,
     pub token_owner: Account,
+    pub extra_data: BTreeMap<String, Value>,
 }
 
 impl Storable for Icrc7Token {
@@ -69,6 +70,7 @@ impl Icrc7Token {
         token_description: Option<String>,
         token_logo: Option<String>,
         token_owner: Account,
+        extra_data: BTreeMap<String, Value>,
     ) -> Self {
         Self {
             token_id,
@@ -76,6 +78,7 @@ impl Icrc7Token {
             token_logo,
             token_owner,
             token_description,
+            extra_data,
         }
     }
 
@@ -84,7 +87,7 @@ impl Icrc7Token {
     }
 
     fn token_metadata(&self) -> Icrc7TokenMetadata {
-        let mut metadata = BTreeMap::<String, Value>::new();
+        let mut metadata = self.extra_data.clone();
         metadata.insert("Name".into(), Value::Text(self.token_name.clone()));
         metadata.insert("Symbol".into(), Value::Text(self.token_name.clone()));
         if let Some(ref description) = self.token_description {
@@ -611,6 +614,7 @@ impl State {
             arg.token_description.clone(),
             arg.token_logo,
             arg.to.clone(),
+            arg.extra_data.unwrap_or_default(),
         );
         let token_metadata = token.token_metadata();
         self.tokens.insert(arg.token_id, token);
