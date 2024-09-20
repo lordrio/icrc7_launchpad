@@ -1515,8 +1515,9 @@ impl State {
             }
         }
         owned_tokens.sort();
+        let actual_take = std::cmp::min(take, owned_tokens.len() as u128);
         match prev {
-            None => owned_tokens[0..=take as usize].to_vec(),
+            None => owned_tokens[0..actual_take as usize].to_vec(),
             Some(prev) => match owned_tokens.iter().position(|id| *id == prev) {
                 None => vec![],
                 Some(index) => owned_tokens
