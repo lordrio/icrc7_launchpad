@@ -291,6 +291,10 @@ impl State {
     ) -> Result<(), TransferError> {
         let mut count = self.txn_count;
         while count != 0 {
+            if self.txn_ledger.get(&count).is_none() {
+                count -= 1;
+                continue;
+            }
             let txn = self.txn_ledger.get(&count).unwrap();
             if txn.ts < *allowed_past_time {
                 return Ok(());
@@ -1203,12 +1207,13 @@ impl State {
         arg: &TransferFromArg,
         current_time: &u64,
     ) -> Result<(), TransferFromError> {
-        if arg.to == *caller {
-            return Err(TransferFromError::GenericBatchError {
-                error_code: 1,
-                message: "Spender cannot be caller".into(),
-            });
-        }
+        // this doesn't make sense!
+        // if arg.to == *caller {
+        //     return Err(TransferFromError::GenericBatchError {
+        //         error_code: 1,
+        //         message: "Spender cannot be caller".into(),
+        //     });
+        // }
 
         if let Some(time) = arg.created_at_time {
             let allowed_past_time = *current_time
@@ -1243,6 +1248,12 @@ impl State {
                         duplicate_of: (arg.token_id),
                     });
                 }
+            }
+        } else {
+            if !self.is_approved_by_collection(&arg.from, &caller, *current_time)
+                && !self.is_approved_by_token(&arg.token_id, &arg.from, &caller, *current_time)
+            {
+                return Err(TransferFromError::Unauthorized);
             }
         }
 
