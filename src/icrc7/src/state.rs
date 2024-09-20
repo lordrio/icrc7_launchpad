@@ -99,7 +99,7 @@ impl Icrc7Token {
         metadata
     }
 
-    fn burn(&mut self, burn_address: Account) {
+    fn _burn(&mut self, burn_address: Account) {
         self.token_owner = burn_address;
     }
 }
@@ -588,9 +588,10 @@ impl State {
                 });
             }
         }
-        if &arg.token_id < &self.next_token_id {
-            return Err(MintError::TokenIdMinimumLimit);
-        }
+        // this is weird, and not needed
+        // if &arg.token_id < &self.next_token_id {
+        //     return Err(MintError::TokenIdMinimumLimit);
+        // }
         if let Some(_) = self.tokens.get(&arg.token_id) {
             return Err(MintError::TokenIdAlreadyExist);
         }
@@ -619,7 +620,7 @@ impl State {
         let token_metadata = token.token_metadata();
         self.tokens.insert(arg.token_id, token);
         self.icrc7_total_supply += 1;
-        self.next_token_id = arg.token_id + 1;
+        // self.next_token_id = arg.token_id + 1;
 
         let txn_id = self.log_transaction(
             TransactionType::Mint {
@@ -705,9 +706,17 @@ impl State {
                     _ => continue,
                 }
             }
-            let mut token = self.tokens.get(&arg.token_id).unwrap();
-            token.burn(burn_address.clone());
-            self.tokens.insert(arg.token_id, token);
+            if !self.tokens.contains_key(&arg.token_id) {
+                txn_results.insert(index, Some(Err(BurnError::NonExistingTokenId)));
+                continue;
+            }
+            // let token = self.tokens.get(&arg.token_id).unwrap();
+            // token.burn(burn_address.clone());
+            // self.tokens.insert(arg.token_id, token);
+            // should be properly burn
+            self.tokens.remove(&arg.token_id);
+            self.icrc7_total_supply -= 1;
+
             let tid = self.log_transaction(
                 TransactionType::Burn {
                     tid: arg.token_id,
