@@ -1394,6 +1394,11 @@ impl State {
                         if results.len() as u128 >= take {
                             return results;
                         }
+                    } else {
+                        results.push(approval.clone());
+                        if results.len() as u128 >= take {
+                            return results;
+                        }
                     }
                 }
             }
